@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وقتي - Waqti | تذكير العلاجات</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- الشريط العلوي مع الشعار الجديد (ساعة + سماعة طبية) -->
+    <header class="bg-slate-900 border-b border-slate-800 p-4 shadow-md">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <!-- أيقونة الشعار المدمجة: ساعة وسماعة طبية -->
+                <div class="relative w-11 h-11 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-xl shadow-inner border border-teal-500/30">
+                    <i class="fa-solid fa-clock"></i>
+                    <i class="fa-solid fa-stethoscope absolute -top-1 -right-1 text-xs bg-slate-900 px-1 rounded-full text-teal-300"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide text-teal-400 leading-tight">وقتي</h1>
+                    <span class="text-[10px] text-slate-400 tracking-wider">MEDICAL APP</span>
+                </div>
+            </div>
+            <span id="current-date" class="text-xs text-slate-400 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700"></span>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-1 max-w-md w-full mx-auto p-4 pb-24">
+        
+        <!-- قسم الترحيب والملخص -->
+        <div class="mb-6 bg-gradient-to-r from-teal-900/40 to-slate-900 p-4 rounded-2xl border border-teal-500/30">
+            <h2 class="font-bold text-lg mb-1">جدول أدوية اليوم</h2>
+            <p class="text-xs text-slate-400">حافظ على انتظامك لصحتك وأدويتك في مواعيدها بدقة.</p>
+        </div>
+
+        <!-- قائمة الأدوية -->
+        <div id="medicines-list" class="space-y-3">
+            <!-- سيتم إضافة الأدوية هنا برمجياً -->
+        </div>
+
+        <!-- حالة القائمة فارغة -->
+        <div id="empty-state" class="hidden text-center py-12">
+            <div class="text-slate-600 text-5xl mb-3">
+                <i class="fa-solid fa-pills"></i>
+            </div>
+            <p class="text-slate-400 text-sm">لا توجد أدوية مضافة حالياً.</p>
+            <p class="text-slate-600 text-xs mt-1">اضغط على زر الإضافة أدناه لبدء جدولة أدويتك.</p>
+        </div>
+    </main>
+
+    <!-- زر إضافة دواء عائم -->
+    <div class="fixed bottom-6 left-0 right-0 max-w-md mx-auto px-4 flex justify-end z-40">
+        <button onclick="openModal()" class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold p-4 rounded-full shadow-lg shadow-teal-500/30 transition-all flex items-center justify-center w-14 h-14">
+            <i class="fa-solid fa-plus text-xl"></i>
+        </button>
+    </div>
+
+    <!-- نافذة إضافة دواء (Modal) -->
+    <div id="medicine-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-teal-400">إضافة دواء جديد</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="medicine-form" onsubmit="addMedicine(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">اسم الدواء</label>
+                    <input type="text" id="med-name" required placeholder="مثال: بانادول، بنادول..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">الجرعة / الكمية</label>
+                    <input type="text" id="med-dose" required placeholder="مثال: حبة واحدة، 5 مل..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">وقت التناول</label>
+                    <input type="time" id="med-time" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500 text-right">
+                </div>
+
+                <div class="pt-2 flex gap-2">
+                    <button type="button" onclick="closeModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-sm font-semibold transition-colors">إلغاء</button>
+                    <button type="submit" class="flex-1 bg-teal-500 hover:bg-teal-400 text-slate-950 py-2.5 rounded-xl text-sm font-bold transition-colors">حفظ الدواء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة التنبيه المباشر (تظهر تلقائياً عند حلول وقت الدواء) -->
+    <div id="live-alert-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <!-- سيتم ملء محتواها برمجياً -->
+    </div>
+
+    <!-- جافاسكريبت التطبيق -->
+    <script>
+        // عرض التاريخ الحالي
+        const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('ar-IQ', options);
+
+        // جلب الأدوية من التخزين المحلي
+        let medicines = JSON.parse(localStorage.getItem('waqti_medicines')) || [];
+
+        // إعداد صوت التنبيه المتكرر
+        let alertAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        alertAudio.loop = true;
+
+        function openModal() {
+            document.getElementById('medicine-modal').classList.remove('hidden');
+            document.getElementById('medicine-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('medicine-modal').classList.add('hidden');
+            document.getElementById('medicine-modal').classList.remove('flex');
+            document.getElementById('medicine-form').reset();
+        }
+
+        function addMedicine(e) {
+            e.preventDefault();
+            const name = document.getElementById('med-name').value;
+            const dose = document.getElementById('med-dose').value;
+            const time = document.getElementById('med-time').value;
+
+            const newMed = {
+                id: Date.now(),
+                name,
+                dose,
+                time,
+                taken: false,
+                alertedToday: false
+            };
+
+            medicines.push(newMed);
+            saveAndRender();
+            closeModal();
+        }
+
+        function toggleTaken(id) {
+            medicines = medicines.map(med => {
+                if (med.id === id) {
+                    med.taken = !med.taken;
+                }
+                return med;
+            });
+            saveAndRender();
+        }
+
+        function deleteMedicine(id) {
+            medicines = medicines.filter(med => med.id !== id);
+            saveAndRender();
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('waqti_medicines', JSON.stringify(medicines));
+            renderMedicines();
+        }
+
+        function renderMedicines() {
+            const listContainer = document.getElementById('medicines-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            listContainer.innerHTML = '';
+
+            if (medicines.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // ترتيب الأدوية حسب الوقت تصاعدياً
+            medicines.sort((a, b) => a.time.localeCompare(b.time));
+
+            medicines.forEach(med => {
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-2xl border transition-all flex items-center justify-between ${med.taken ? 'bg-slate-900/50 border-emerald-500/30 opacity-75' : 'bg-slate-900 border-slate-800'}`;
+                
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl ${med.taken ? 'bg-emerald-500/20 text-emerald-400' : 'bg-teal-500/20 text-teal-400'} flex items-center justify-center font-bold text-lg">
+                            <i class="fa-solid ${med.taken ? 'fa-check' : 'fa-pills'}"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm ${med.taken ? 'line-through text-slate-400' : 'text-slate-100'}">${med.name}</h4>
+                            <p class="text-xs text-slate-400 mt-0.5">الجرعة: ${med.dose}</p>
+                            <span class="inline-block mt-1 text-xs px-2 py-0.5 rounded bg-slate-800 text-teal-300 font-mono">
+                                <i class="fa-regular fa-clock ml-1"></i>${med.time}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleTaken(${med.id})" class="p-2.5 rounded-xl transition-all ${med.taken ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'}" title="تم الأخذ">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button onclick="deleteMedicine(${med.id})" class="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors" title="حذف">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        // فحص المواعيد بدقة كل دقيقة وإطلاق التنبيه الفوري
+        setInterval(() => {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const currentTime = `${hours}:${minutes}`;
+
+            medicines.forEach(med => {
+                if (med.time === currentTime && !med.taken && !med.alertedToday) {
+                    med.alertedToday = true;
+                    
+                    // تشغيل الصوت
+                    alertAudio.play().catch(err => console.log("الصوت يتطلب تفاعل مستخدم مع الصفحة أولاً"));
+                    
+                    // إظهار النافذة
+                    showLiveAlert(med);
+                }
+            });
+        }, 60000);
+
+        function showLiveAlert(med) {
+            const alertBox = document.getElementById('live-alert-modal');
+            alertBox.innerHTML = `
+                <div class="bg-slate-900 border-2 border-rose-500 w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl shadow-rose-500/20">
+                    <div class="w-16 h-16 bg-rose-500/20 text-rose-500 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-4">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-1">حان وقت الدواء!</h3>
+                    <p class="text-rose-400 font-semibold text-lg mb-2">${med.name}</p>
+                    <p class="text-slate-400 text-sm mb-6">الجرعة المطلوبة: <span class="text-white font-bold">${med.dose}</span></p>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="dismissAlert(${med.id}, 'snooze')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-sm transition-colors">
+                            تأجيل (10 دقائق)
+                        </button>
+                        <button onclick="dismissAlert(${med.id}, 'taken')" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-3 rounded-xl font-bold text-sm transition-colors shadow-lg shadow-emerald-500/30">
+                            تم الأخذ ✓
+                        </button>
+                    </div>
+                </div>
+            `;
+            alertBox.classList.remove('hidden');
+            alertBox.classList.add('flex');
+        }
+
+        function dismissAlert(id, action) {
+            alertAudio.pause();
+            alertAudio.currentTime = 0;
+
+            const alertBox = document.getElementById('live-alert-modal');
+            alertBox.classList.add('hidden');
+            alertBox.classList.remove('flex');
+
+            if (action === 'taken') {
+                toggleTaken(id);
+            } else if (action === 'snooze') {
+                let med = medicines.find(m => m.id === id);
+                if (med) {
+                    let [h, m] = med.time.split(':').map(Number);
+                    m += 10;
+                    if (m >= 60) { h = (h + 1) % 24; m -= 60; }
+                    med.time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                    med.alertedToday = false;
+                    saveAndRender();
+                }
+            }
+        }
+
+        // تشغيل العرض عند فتح الصفحة
+        renderMedicines();
+    </script>
+</body>
+</html>
