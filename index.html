@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>وقتي - Waqti | تذكير العلاجات</title>
+    
+    <!-- اسم التطبيق المختصر عند إضافته للشاشة الرئيسية -->
+    <title>وقتي - Waqti</title>
+    <meta name="apple-mobile-web-app-title" content="وقتي - Waqti">
+    <meta name="application-name" content="وقتي - Waqti">
+    <meta name="theme-color" content="#020617">
+
+    <!-- تخصيص أيقونة التطبيق (PWA & Apple) -->
+    <link rel="apple-touch-icon" href="https://images.emojiterra.com/google/android-11/512px/1f48a.png">
+    <link rel="icon" type="image/png" href="https://images.emojiterra.com/google/android-11/512px/1f48a.png">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,25 +26,24 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-    <!-- الشريط العلوي مع الشعار وزر تفعيل الصوت -->
+    <!-- الشريط العلوي مع الشعار وزر تفعيل الصوت والإشعارات -->
     <header class="bg-slate-900 border-b border-slate-800 p-4 shadow-md">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <!-- الشعار: ساعة + سماعة طبية -->
                 <div class="relative w-11 h-11 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-xl shadow-inner border border-teal-500/30">
                     <i class="fa-solid fa-clock"></i>
                     <i class="fa-solid fa-stethoscope absolute -top-1 -right-1 text-xs bg-slate-900 px-1 rounded-full text-teal-300"></i>
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-wide text-teal-400 leading-tight">وقتي</h1>
-                    <span class="text-[10px] text-slate-400 tracking-wider">MEDICAL APP</span>
+                    <span class="text-[10px] text-slate-400 tracking-wider">WAQTI APP</span>
                 </div>
             </div>
 
-            <!-- زر تفعيل الصوت للمتصفح -->
-            <button onclick="activateAudio()" id="sound-btn" class="bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 border border-teal-500/30 px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5">
+            <!-- زر تفعيل التنبيه الصوتي والإشعارات -->
+            <button onclick="activateAppAlerts()" id="sound-btn" class="bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 border border-teal-500/30 px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-volume-xmark" id="sound-icon"></i>
-                <span id="sound-text">تفعيل التنبيه الصوتي</span>
+                <span id="sound-text">تفعيل التنبيهات</span>
             </button>
         </div>
     </header>
@@ -42,24 +51,18 @@
     <!-- المحتوى الرئيسي -->
     <main class="flex-1 max-w-md w-full mx-auto p-4 pb-24">
         
-        <!-- قسم الترحيب والتاريخ واختبار التنبيه -->
         <div class="mb-6 bg-gradient-to-r from-teal-900/40 to-slate-900 p-4 rounded-2xl border border-teal-500/30 flex justify-between items-center">
             <div>
                 <h2 class="font-bold text-base mb-0.5">جدول أدوية اليوم</h2>
                 <span id="current-date" class="text-xs text-slate-400"></span>
             </div>
-            <!-- زر تجريبي لاختبار التنبيه مباشرة -->
             <button onclick="testAlert()" class="bg-slate-800 hover:bg-slate-700 text-teal-300 border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-bell"></i> اختبار المنبه
             </button>
         </div>
 
-        <!-- قائمة الأدوية -->
-        <div id="medicines-list" class="space-y-3">
-            <!-- سيتم إضافة الأدوية هنا برمجياً -->
-        </div>
+        <div id="medicines-list" class="space-y-3"></div>
 
-        <!-- حالة القائمة فارغة -->
         <div id="empty-state" class="hidden text-center py-12">
             <div class="text-slate-600 text-5xl mb-3">
                 <i class="fa-solid fa-pills"></i>
@@ -76,7 +79,7 @@
         </button>
     </div>
 
-    <!-- نافذة إضافة دواء (Modal) -->
+    <!-- نافذة إضافة دواء -->
     <div id="medicine-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
@@ -89,12 +92,12 @@
             <form id="medicine-form" onsubmit="addMedicine(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">اسم الدواء</label>
-                    <input type="text" id="med-name" required placeholder="مثال: بانادول، بنادول..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500">
+                    <input type="text" id="med-name" required placeholder="مثال: بانادول..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500">
                 </div>
 
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">الجرعة / الكمية</label>
-                    <input type="text" id="med-dose" required placeholder="مثال: حبة واحدة، 5 مل..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500">
+                    <input type="text" id="med-dose" required placeholder="مثال: حبة واحدة..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500">
                 </div>
 
                 <div>
@@ -110,14 +113,11 @@
         </div>
     </div>
 
-    <!-- نافذة التنبيه المباشر -->
-    <div id="live-alert-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-        <!-- يتم ملؤها برمجياً -->
-    </div>
+    <!-- نافذة التنبيه المباشر داخل التطبيق -->
+    <div id="live-alert-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50"></div>
 
-    <!-- جافاسكريبت التطبيق -->
+    <!-- جافاسكريبت -->
     <script>
-        // عرض التاريخ الحالي
         const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('ar-IQ', options);
 
@@ -126,36 +126,34 @@
         alertAudio.loop = true;
         let isAudioAllowed = false;
 
-        // دالة تفعيل الصوت (تستجيب لضغط المستخدم متجاوزة قيود المتصفح)
-        function activateAudio() {
+        // تفعيل الصوت وصلاحية إرسال الإشعارات للنظام
+        function activateAppAlerts() {
             alertAudio.play().then(() => {
                 alertAudio.pause();
                 alertAudio.currentTime = 0;
                 isAudioAllowed = true;
+                
+                // طلب الإذن لإظهار الإشعارات العلوية (Push Notifications)
+                if (window.Notification && Notification.permission !== "granted") {
+                    Notification.requestPermission();
+                }
                 
                 const btn = document.getElementById('sound-btn');
                 const icon = document.getElementById('sound-icon');
                 const text = document.getElementById('sound-text');
                 
                 btn.className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5";
-                icon.className = "fa-solid fa-volume-high";
-                text.innerText = "المنبه الصوتي مفعل";
+                icon.className = "fa-solid fa-bell";
+                text.innerText = "التنبيهات مفعلة";
             }).catch(err => {
-                console.log("فشل تفعيل الصوت:", err);
+                console.log("فشل تفعيل التنبيهات:", err);
             });
         }
 
-        // دالة تجريبية لاختبار المنبه فوراً
         function testAlert() {
-            const sampleMed = {
-                id: 99999,
-                name: "دواء تجريبي (بانادول)",
-                dose: "حبة واحدة"
-            };
-            
-            if (isAudioAllowed) {
-                alertAudio.play().catch(e => console.log(e));
-            }
+            const sampleMed = { id: 99999, name: "دواء تجريبي (بانادول)", dose: "حبة واحدة" };
+            if (isAudioAllowed) { alertAudio.play().catch(e => console.log(e)); }
+            triggerNotification(sampleMed);
             showLiveAlert(sampleMed, true);
         }
 
@@ -192,9 +190,7 @@
 
         function toggleTaken(id) {
             medicines = medicines.map(med => {
-                if (med.id === id) {
-                    med.taken = !med.taken;
-                }
+                if (med.id === id) { med.taken = !med.taken; }
                 return med;
             });
             saveAndRender();
@@ -213,7 +209,6 @@
         function renderMedicines() {
             const listContainer = document.getElementById('medicines-list');
             const emptyState = document.getElementById('empty-state');
-            
             listContainer.innerHTML = '';
 
             if (medicines.length === 0) {
@@ -255,8 +250,21 @@
             });
         }
 
-        // فحص المواعيد بدقة كل دقيقة
-        setInterval(() => {
+        // إرسال إشعار نظام حقيقي (Push Notification)
+        function triggerNotification(med) {
+            if (window.Notification && Notification.permission === "granted") {
+                try {
+                    new Notification("وقتي - حان وقت الدواء!", {
+                        body: `الدواء: ${med.name}\nالجرعة: ${med.dose}`,
+                        icon: "https://images.emojiterra.com/google/android-11/512px/1f48a.png"
+                    });
+                } catch (e) {
+                    console.log("النظام لا يدعم إشعارات المتصفح:", e);
+                }
+            }
+        }
+
+        function checkMedicinesTime() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -268,10 +276,19 @@
                     if (isAudioAllowed) {
                         alertAudio.play().catch(err => console.log(err));
                     }
+                    triggerNotification(med);
                     showLiveAlert(med, false);
                 }
             });
-        }, 60000);
+        }
+
+        setInterval(checkMedicinesTime, 10000);
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                checkMedicinesTime();
+            }
+        });
 
         function showLiveAlert(med, isTest) {
             const alertBox = document.getElementById('live-alert-modal');
@@ -280,7 +297,7 @@
                     <div class="w-16 h-16 bg-rose-500/20 text-rose-500 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-4">
                         <i class="fa-solid fa-bell"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-white mb-1">${isTest ? 'اختبار المنبه الصوتي' : 'حان وقت الدواء!'}</h3>
+                    <h3 class="text-xl font-bold text-white mb-1">${isTest ? 'اختبار المنبه' : 'حان وقت الدواء!'}</h3>
                     <p class="text-rose-400 font-semibold text-lg mb-2">${med.name}</p>
                     <p class="text-slate-400 text-sm mb-6">الجرعة المطلوبة: <span class="text-white font-bold">${med.dose}</span></p>
                     
