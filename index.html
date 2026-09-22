@@ -16,11 +16,11 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-    <!-- الشريط العلوي مع الشعار الجديد (ساعة + سماعة طبية) -->
+    <!-- الشريط العلوي مع الشعار وزر تفعيل الصوت -->
     <header class="bg-slate-900 border-b border-slate-800 p-4 shadow-md">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <!-- أيقونة الشعار المدمجة: ساعة وسماعة طبية -->
+                <!-- الشعار: ساعة + سماعة طبية -->
                 <div class="relative w-11 h-11 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-xl shadow-inner border border-teal-500/30">
                     <i class="fa-solid fa-clock"></i>
                     <i class="fa-solid fa-stethoscope absolute -top-1 -right-1 text-xs bg-slate-900 px-1 rounded-full text-teal-300"></i>
@@ -30,17 +30,28 @@
                     <span class="text-[10px] text-slate-400 tracking-wider">MEDICAL APP</span>
                 </div>
             </div>
-            <span id="current-date" class="text-xs text-slate-400 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700"></span>
+
+            <!-- زر تفعيل الصوت للمتصفح -->
+            <button onclick="activateAudio()" id="sound-btn" class="bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 border border-teal-500/30 px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-volume-xmark" id="sound-icon"></i>
+                <span id="sound-text">تفعيل التنبيه الصوتي</span>
+            </button>
         </div>
     </header>
 
     <!-- المحتوى الرئيسي -->
     <main class="flex-1 max-w-md w-full mx-auto p-4 pb-24">
         
-        <!-- قسم الترحيب والملخص -->
-        <div class="mb-6 bg-gradient-to-r from-teal-900/40 to-slate-900 p-4 rounded-2xl border border-teal-500/30">
-            <h2 class="font-bold text-lg mb-1">جدول أدوية اليوم</h2>
-            <p class="text-xs text-slate-400">حافظ على انتظامك لصحتك وأدويتك في مواعيدها بدقة.</p>
+        <!-- قسم الترحيب والتاريخ واختبار التنبيه -->
+        <div class="mb-6 bg-gradient-to-r from-teal-900/40 to-slate-900 p-4 rounded-2xl border border-teal-500/30 flex justify-between items-center">
+            <div>
+                <h2 class="font-bold text-base mb-0.5">جدول أدوية اليوم</h2>
+                <span id="current-date" class="text-xs text-slate-400"></span>
+            </div>
+            <!-- زر تجريبي لاختبار التنبيه مباشرة -->
+            <button onclick="testAlert()" class="bg-slate-800 hover:bg-slate-700 text-teal-300 border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-bell"></i> اختبار المنبه
+            </button>
         </div>
 
         <!-- قائمة الأدوية -->
@@ -99,9 +110,9 @@
         </div>
     </div>
 
-    <!-- نافذة التنبيه المباشر (تظهر تلقائياً عند حلول وقت الدواء) -->
+    <!-- نافذة التنبيه المباشر -->
     <div id="live-alert-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-        <!-- سيتم ملء محتواها برمجياً -->
+        <!-- يتم ملؤها برمجياً -->
     </div>
 
     <!-- جافاسكريبت التطبيق -->
@@ -110,12 +121,43 @@
         const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('ar-IQ', options);
 
-        // جلب الأدوية من التخزين المحلي
         let medicines = JSON.parse(localStorage.getItem('waqti_medicines')) || [];
-
-        // إعداد صوت التنبيه المتكرر
         let alertAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
         alertAudio.loop = true;
+        let isAudioAllowed = false;
+
+        // دالة تفعيل الصوت (تستجيب لضغط المستخدم متجاوزة قيود المتصفح)
+        function activateAudio() {
+            alertAudio.play().then(() => {
+                alertAudio.pause();
+                alertAudio.currentTime = 0;
+                isAudioAllowed = true;
+                
+                const btn = document.getElementById('sound-btn');
+                const icon = document.getElementById('sound-icon');
+                const text = document.getElementById('sound-text');
+                
+                btn.className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5";
+                icon.className = "fa-solid fa-volume-high";
+                text.innerText = "المنبه الصوتي مفعل";
+            }).catch(err => {
+                console.log("فشل تفعيل الصوت:", err);
+            });
+        }
+
+        // دالة تجريبية لاختبار المنبه فوراً
+        function testAlert() {
+            const sampleMed = {
+                id: 99999,
+                name: "دواء تجريبي (بانادول)",
+                dose: "حبة واحدة"
+            };
+            
+            if (isAudioAllowed) {
+                alertAudio.play().catch(e => console.log(e));
+            }
+            showLiveAlert(sampleMed, true);
+        }
 
         function openModal() {
             document.getElementById('medicine-modal').classList.remove('hidden');
@@ -181,7 +223,6 @@
                 emptyState.classList.add('hidden');
             }
 
-            // ترتيب الأدوية حسب الوقت تصاعدياً
             medicines.sort((a, b) => a.time.localeCompare(b.time));
 
             medicines.forEach(med => {
@@ -214,7 +255,7 @@
             });
         }
 
-        // فحص المواعيد بدقة كل دقيقة وإطلاق التنبيه الفوري
+        // فحص المواعيد بدقة كل دقيقة
         setInterval(() => {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -224,34 +265,38 @@
             medicines.forEach(med => {
                 if (med.time === currentTime && !med.taken && !med.alertedToday) {
                     med.alertedToday = true;
-                    
-                    // تشغيل الصوت
-                    alertAudio.play().catch(err => console.log("الصوت يتطلب تفاعل مستخدم مع الصفحة أولاً"));
-                    
-                    // إظهار النافذة
-                    showLiveAlert(med);
+                    if (isAudioAllowed) {
+                        alertAudio.play().catch(err => console.log(err));
+                    }
+                    showLiveAlert(med, false);
                 }
             });
         }, 60000);
 
-        function showLiveAlert(med) {
+        function showLiveAlert(med, isTest) {
             const alertBox = document.getElementById('live-alert-modal');
             alertBox.innerHTML = `
                 <div class="bg-slate-900 border-2 border-rose-500 w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl shadow-rose-500/20">
                     <div class="w-16 h-16 bg-rose-500/20 text-rose-500 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-4">
                         <i class="fa-solid fa-bell"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-white mb-1">حان وقت الدواء!</h3>
+                    <h3 class="text-xl font-bold text-white mb-1">${isTest ? 'اختبار المنبه الصوتي' : 'حان وقت الدواء!'}</h3>
                     <p class="text-rose-400 font-semibold text-lg mb-2">${med.name}</p>
                     <p class="text-slate-400 text-sm mb-6">الجرعة المطلوبة: <span class="text-white font-bold">${med.dose}</span></p>
                     
                     <div class="flex gap-3">
-                        <button onclick="dismissAlert(${med.id}, 'snooze')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-sm transition-colors">
-                            تأجيل (10 دقائق)
-                        </button>
-                        <button onclick="dismissAlert(${med.id}, 'taken')" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-3 rounded-xl font-bold text-sm transition-colors shadow-lg shadow-emerald-500/30">
-                            تم الأخذ ✓
-                        </button>
+                        ${isTest ? `
+                            <button onclick="dismissAlert(0, 'close')" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold text-sm transition-colors">
+                                إغلاق الاختبار
+                            </button>
+                        ` : `
+                            <button onclick="dismissAlert(${med.id}, 'snooze')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-sm transition-colors">
+                                تأجيل (10 دقائق)
+                            </button>
+                            <button onclick="dismissAlert(${med.id}, 'taken')" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-3 rounded-xl font-bold text-sm transition-colors shadow-lg shadow-emerald-500/30">
+                                تم الأخذ ✓
+                            </button>
+                        `}
                     </div>
                 </div>
             `;
@@ -282,7 +327,6 @@
             }
         }
 
-        // تشغيل العرض عند فتح الصفحة
         renderMedicines();
     </script>
 </body>
